@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/platform_tags.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,24 +58,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  String? _owner;
 
   @override
   void initState() {
     super.initState();
     NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      _incrementCounter();
+      MifareClassic? mifare = MifareClassic.from(tag);
+      if (mifare == null) {
+        return;
+      }
+      if (listEquals(mifare.identifier, [70, 203, 127, 221])) {
+        setOwner('Okada Takuma');
+      }
     });
   }
 
-  void _incrementCounter() {
+  void setOwner(String owner) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _owner = owner;
+    });
+  }
+
+  void clearOwner() {
+    setState(() {
+      _owner = null;
     });
   }
 
@@ -114,11 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have touched IC card this many times:',
+            Text(
+              'Owner:',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             Text(
-              '$_counter',
+              _owner ?? 'Unknown',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
