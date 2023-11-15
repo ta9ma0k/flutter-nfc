@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,6 +58,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+      _incrementCounter();
+    });
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -106,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'You have touched IC card this many times:',
             ),
             Text(
               '$_counter',
@@ -115,11 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
